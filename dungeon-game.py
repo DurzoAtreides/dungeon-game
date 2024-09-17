@@ -24,18 +24,27 @@ class Item():
             item_descript += f" that adds {self.defense_boost} to defense"
         return item_descript
 
+    def __lt__(self, other):
+        return self.item_name < other.item_name
+
     def use_item(self, player):
         ##the use item function checks the inventory list for at least one occurance of the item and the checks what kind of boost it gives and applies it to the player
-        if player.inventory.count(self) >= 1:
+        if not player.inventory:
+            print("Inventory is empty.")
+            return
+        if player.inventory.get(self) >= 1:
             player.gain_health(self.health_boost)
             player.defense_boost += self.defense_boost
             player.strength_boost += self.strength_boost
-            player.inventory.remove(self)
+            player.inventory[self] -= 1
+            if player.inventory[self] == 0:
+                player.inventory.pop(self)
 
     def gain_item(self, player):
-        ##the gain item function adds the item to the inventory list of the player
-        player.inventory.append(self)
-        player.current_location.loot = None
+        ##the gain item function adds the item to the inventory of the player
+        if self not in player.inventory.keys():
+            player.inventory[self] = 0
+        player.inventory[self] += 1
 
         print(f"You added a {self.item_name} to your inventory.")
 
@@ -76,7 +85,7 @@ class Player():
         self.defense_boost = 0
         self.effective_strength = self.strength + self.strength_boost
         self.effective_defense = self.defense + self.defense_boost
-        self.inventory = []
+        self.inventory = {}
         self.is_knocked_out = False
         self.current_enemy = None
         self.current_location = None
@@ -169,13 +178,13 @@ class Player():
 
 ##The enemy class has a name, health, a challenge rating, a STR attr, a DEF attr, and an EXP value. The enemy will also have an attack function, a lose health function, and a reward/death function
 class Enemy():
-    def __init__(self, input_name, input_health, challenge_rating, input_strength, input_defenese, exp_value,):
+    def __init__(self, input_name, input_health, challenge_rating, input_strength, input_defense, exp_value,):
         self.name = input_name
         self.base_health = input_health
         self.current_health = self.base_health
         self.challenge_rating = challenge_rating
         self.strength = input_strength
-        self.defense = input_defenese
+        self.defense = input_defense
         self.exp_value = exp_value
 
     def __repr__(self):
@@ -210,16 +219,16 @@ class Enemy():
         player.current_location.enemy = None
         if self.challenge_rating == 1:
             loot = random.choice(loot_table_1)
-            player.inventory.append(loot)
-            print(f"You found {loot}")
+            loot.gain_item(player)
+            print(f"You got {loot}")
         elif self.challenge_rating == 2:
             loot = random.choice(loot_table_2)
-            player.inventory.append(loot)
-            print(f"You found {loot}")
+            loot.gain_item(player)
+            print(f"You got {loot}")
         elif self.challenge_rating == 3:
             loot = random.choice(loot_table_3)
-            player.inventory.append(loot)
-            print(f"You found {loot}")
+            loot.gain_item(player)
+            print(f"You got {loot}")
         elif self.challenge_rating == 4:
             print("The boss is dead! You Win!")
 
@@ -254,7 +263,8 @@ class Location():
         ##the reset enemy function chooses an enemy from the location's monster table and resets its health, and then sets the enemy as the current enemy for the player
         self.enemy = random.choice(self.monster_table)
         self.enemy.current_health = self.enemy.base_health
-        player_1.current_enemy = self.enemy
+        if player_1:
+            player_1.current_enemy = self.enemy
 
     def reset_loot(self):
         ##the reset loot function chooses another item from the item table and populates the loot variable with it
@@ -297,7 +307,10 @@ while (player_1.last_enemy == None) or (player_1.last_enemy.challenge_rating != 
 
     elif action == "3":
         ##the use item choice prints the player's inventory and then checks if the player's item choice is an item and then runs the item's use item function
-        print(player_1.inventory)
+        inventory_keys = list(player_1.inventory.keys())
+        inventory_keys.sort()
+        sorted_inventory = {i: player_1.inventory[i] for i in inventory_keys}
+        print(sorted_inventory)
         used_item = input ("Which item would you like to use from the above list? ")
         item_to_use = item_mapping.get(used_item)
         if item_to_use:
@@ -311,6 +324,7 @@ while (player_1.last_enemy == None) or (player_1.last_enemy.challenge_rating != 
             if player_1.current_location:
                 print(player_1.current_location)
                 player_1.current_location.loot.gain_item(player_1)
+                player_1.current_location.loot = None
             else:
                 print("You didn't find anything in your search")
         except AttributeError:
@@ -325,6 +339,9 @@ while (player_1.last_enemy == None) or (player_1.last_enemy.challenge_rating != 
             print(f"You waited and now {player_1.current_enemy}")
         else:
             print("You waited and nothing happened. Try changing location")
+
+    elif action == "exit game":
+        break
 
     else:
         ##if the player input doesnt match any of the choices provided it prints a statement saying invalid command
