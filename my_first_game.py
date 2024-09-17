@@ -2,7 +2,7 @@ import random
 
 ##This will be a dungeon crawler RPG where the player can change rooms and fight random enemies to gain EXP and delve farther
 
-##The item class has a health effect, a challenge/value rating ##and/or is equippable and augments attr
+##The item class has a health effect, a challenge/value rating ##and/or is equippable and augments attributes
 class Item():
     def __init__(self, item_name, health_boost = 0, strength_boost = 0, defense_boost = 0, challenge_rating = 1):
         self.item_name = item_name
@@ -12,6 +12,7 @@ class Item():
         self.challenge_rating = challenge_rating
 
     def __repr__(self):
+        ##when an object gets printed and is of the item class a print statement put together by what attributes it has gets made and returned
         item_descript = f"A {self.item_name}"
         if (self.health_boost >= 1) and (self.challenge_rating == 3):
             item_descript += f" that adds {self.health_boost} points to health, {self.strength_boost} to strength, and {self.defense_boost} to defense"
@@ -82,16 +83,16 @@ class Player():
         self.last_enemy = None
 
     def __repr__(self):
-        ##Printing a player will tell the name, current health, and level
+        ##Printing a player tells the name, current health, and level
         return f'This adventurer named {self.name} is at level {self.level} and has {self.health} health points'
 
     def gain_exp(self, amount):
-        ##the gain exp function will add an exp amount and run the check level up function
+        ##the gain exp function adds an exp amount and runs the check level up function
         self.exp += amount
         self.check_level_up()
 
     def check_level_up(self):
-        ##the check level up function will compare the current exp to the exp thresholds and run the level up function if they meet a new higher threshold
+        ##the check level up function compares the current exp to the exp thresholds and run the level up function if they meet a new higher threshold
         level_up_thresholds = {2: 20, 3: 50, 4: 150}
         new_level = self.level
         for level, exp_required in level_up_thresholds.items():
@@ -104,7 +105,7 @@ class Player():
             self.level_up(new_level)
 
     def level_up(self, new_level):
-        ##the level up function will adjust player max health, current health, strength, and defense
+        ##the level up function adjusts the player's max health, current health, strength, and defense
         self.level = new_level
         print(f"{self.name} leveled up to level {new_level}. ")
         self.max_health = self.base_health + (self.level * 5)
@@ -133,7 +134,7 @@ class Player():
             print(f"{self.name} was knocked out!")
 
     def attack(self, enemy):
-        ##the attack function will deal damage to the current enemy's health based on the strength of the player and defense of the enemy
+        ##the attack function deals damage to the current enemy's health based on the strength of the player and defense of the enemy
         if self.health <= 0:
             print(f"{self.name} can't attack while knocked out!")
         else:
@@ -154,6 +155,7 @@ class Player():
                 pass
 
     def change_location(self, new_location):
+        ##the change location function takes a string parameter and checks it against the location mapping dictionary and if it matches a key it changes the current location variable and resets the enemy and then prints a line about what is in the room. If it does not match, it prints a line saying it was an invalid location choice.
         location_mapping = {"a1": a1, "a2": a2, "a3": a3, "b1": b1, "b2": b2, "b3": b3, "c1": c1, "c2": c2, "c3": c3, "c4":c4}
         if new_location in location_mapping:
             self.current_location = location_mapping[new_location]
@@ -177,6 +179,7 @@ class Enemy():
         self.exp_value = exp_value
 
     def __repr__(self):
+        ##printing an object of the enemy class makes a string that uses the name variable
         return f"A {self.name} is in this room!"
 
     def lose_health(self, amount, player):
@@ -244,14 +247,17 @@ class Location():
         self.enemy = random.choice(monster_table)
 
     def __repr__(self):
+        ##printing an object of the location class makes a string put together of the name variable and loot variable
         return f"You are in {self.location_name} and you found a {self.loot} in the corner"
 
     def reset_enemy(self):
+        ##the reset enemy function chooses an enemy from the location's monster table and resets its health, and then sets the enemy as the current enemy for the player
         self.enemy = random.choice(self.monster_table)
         self.enemy.current_health = self.enemy.base_health
         player_1.current_enemy = self.enemy
 
     def reset_loot(self):
+        ##the reset loot function chooses another item from the item table and populates the loot variable with it
         self.loot = random.choice(self.loot_table)
 
 a1 = Location("A1", loot_table_1, monster_table_1)
@@ -265,25 +271,32 @@ c2 = Location("C2", loot_table_3, monster_table_3, 3)
 c3 = Location("C3", loot_table_3, monster_table_3, 3)
 c4 = Location("C4", loot_table_3, monster_table_4, 4)
 
+##starting the game prompts the player to name their adventurer and then proceeds into the main game loop
+
 player_name = input("What is your adventurer's name? ")
 
 player_1 = Player(player_name)
+
+##the main game loop consists of a choice between actions to fight, move, use items, search or wait in the current location. The game loop continues until an enemy with a challenge rating attribute of 4 is killed.
 
 while (player_1.last_enemy == None) or (player_1.last_enemy.challenge_rating != 4):
     print(player_1)
     action = input("\nWhat would you like to do? (1: attack, 2: change location, 3: use item, 4: search, 5: wait) ")
 
     if action == "1":
+        ##the attack choice checks to see if there's a current enemy, prints a no enemy statement if there isnt one, and runs the player attack function if there is one
         if player_1.current_enemy == None:
             print("No enemy to attack here!")
         else:
             player_1.attack(player_1.current_enemy)
 
     elif action == "2":
+        ##the change location choice feeds a player input into the player change location function
         new_location = input("Where do you want to go? (a1, a2, a3, b1, b2, b3, c1, c2, c3, c4) ")
         player_1.change_location(new_location)
 
     elif action == "3":
+        ##the use item choice prints the player's inventory and then checks if the player's item choice is an item and then runs the item's use item function
         print(player_1.inventory)
         used_item = input ("Which item would you like to use from the above list? ")
         item_to_use = item_mapping.get(used_item)
@@ -293,6 +306,7 @@ while (player_1.last_enemy == None) or (player_1.last_enemy.challenge_rating != 
             print("Item not in inventory")
 
     elif action == "4":
+        ##the search choice prints the players current location and then runs the item in the loot variable's gain item function, if there isnt a current item it will print a no item statement
         try:
             if player_1.current_location:
                 print(player_1.current_location)
@@ -303,6 +317,7 @@ while (player_1.last_enemy == None) or (player_1.last_enemy.challenge_rating != 
             print("You didn't find anything in your search")
 
     elif action == "5":
+        ##the wait choice runs the current location's reset enemy and reset loot function and also prints a statement about the new enemy
         if player_1.current_location:
             player_1.current_location.reset_enemy()
             player_1.current_location.reset_loot()
@@ -312,4 +327,5 @@ while (player_1.last_enemy == None) or (player_1.last_enemy.challenge_rating != 
             print("You waited and nothing happened. Try changing location")
 
     else:
+        ##if the player input doesnt match any of the choices provided it prints a statement saying invalid command
         print("Invalid command")
