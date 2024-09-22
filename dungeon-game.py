@@ -93,7 +93,7 @@ class Player():
 
     def __repr__(self):
         ##Printing a player tells the name, current health, and level
-        return f'This adventurer named {self.name} is at level {self.level} and has {self.health} health points'
+        return f'\nThis adventurer named {self.name} is at level {self.level} and has {self.health} health points'
 
     def gain_exp(self, amount):
         ##the gain exp function adds an exp amount and runs the check level up function
@@ -123,7 +123,7 @@ class Player():
         self.defense = self.base_defense * self.level
         self.effective_strength = self.strength + self.strength_boost
         self.effective_defense = self.defense + self.defense_boost
-        print(f"Strength is now at {self.effective_strength}, defense is now at {self.effective_defense}, and your max health is at {self.max_health}.")
+        print(f"\nStrength is now at {self.effective_strength}, defense is now at {self.effective_defense}, and your max health is at {self.max_health}.")
 
     def gain_health(self, amount):
         ##the gain health function resets the health to 1 if it was negative or 0, adds health up to the max health value, and sets knocked out to false
@@ -140,12 +140,12 @@ class Player():
         if self.health <= 0:
             self.health = 0
             self.is_knocked_out = True
-            print(f"{self.name} was knocked out!")
+            print(f"\n{self.name} was knocked out!")
 
     def attack(self, enemy):
         ##the attack function deals damage to the current enemy's health based on the strength of the player and defense of the enemy
         if self.health <= 0:
-            print(f"{self.name} can't attack while knocked out!")
+            print(f"\n{self.name} can't attack while knocked out!")
         else:
             base_damage = (self.strength - enemy.defense)
             rand_bonus = random.randint(-1, 3)
@@ -153,9 +153,9 @@ class Player():
             total_damage = base_damage + bonus_damage
             if total_damage < 0:
                 total_damage = 0
-            print(f'{self.name} attacked the {enemy.name} and dealt {total_damage} damage')
+            print(f'\n{self.name} attacked the {enemy.name} and dealt {total_damage} damage')
             if rand_bonus == 3:
-                print("It was a critical hit!")
+                print(f"{self.name} made a critical hit!")
             enemy.lose_health(total_damage, self)
 
             try:
@@ -174,7 +174,7 @@ class Player():
             else:
                 print(f"{self.current_enemy}")
         else:
-            print("Invalid location!")
+            print("\nInvalid location!")
 
 ##The enemy class has a name, health, a challenge rating, a STR attr, a DEF attr, and an EXP value. The enemy will also have an attack function, a lose health function, and a reward/death function
 class Enemy():
@@ -189,13 +189,13 @@ class Enemy():
 
     def __repr__(self):
         ##printing an object of the enemy class makes a string that uses the name variable
-        return f"A {self.name} is in this room!"
+        return f"\nA {self.name} is in this room!"
 
     def lose_health(self, amount, player):
         ##the lose health function reduces the health value and if the health value reaches 0 or lower runs the death function to reward the player
         self.current_health -= amount
         if self.current_health <= 0:
-            print(f'The {self.name} has been deafeated!')
+            print(f'\nThe {self.name} has been deafeated!')
             self.death(player)
 
     def attack(self, player):
@@ -206,10 +206,10 @@ class Enemy():
         total_damage = base_damage + bonus_damage
         if total_damage < 0:
             total_damage = 0
-        print(f"The {self.name} attacked {player.name} and dealt {total_damage} damage")
+        print(f"\nThe {self.name} attacked {player.name} and dealt {total_damage} damage")
         player.lose_health(total_damage)
         if rand_bonus == 2:
-            print("It was a critical hit!")
+            print(f"{self.name} made a critical hit!")
 
     def death(self, player):
         ##the death function rewards the player with the enemy's exp value and a choice from a loot table
@@ -220,17 +220,17 @@ class Enemy():
         if self.challenge_rating == 1:
             loot = random.choice(loot_table_1)
             loot.gain_item(player)
-            print(f"You got {loot}")
+            print(f"\nYou got {loot}")
         elif self.challenge_rating == 2:
             loot = random.choice(loot_table_2)
             loot.gain_item(player)
-            print(f"You got {loot}")
+            print(f"\nYou got {loot}")
         elif self.challenge_rating == 3:
             loot = random.choice(loot_table_3)
             loot.gain_item(player)
-            print(f"You got {loot}")
+            print(f"\nYou got {loot}")
         elif self.challenge_rating == 4:
-            print("The boss is dead! You Win!")
+            print("\n\nThe boss is dead! You Win!")
 
 rat = Enemy("Rat", 5, 1, 3, 3, 5)
 spider = Enemy("Spider", 8, 1, 4, 2, 8)
@@ -257,7 +257,7 @@ class Location():
 
     def __repr__(self):
         ##printing an object of the location class makes a string put together of the name variable and loot variable
-        return f"You are in {self.location_name} and you found a {self.loot} in the corner"
+        return f"\nYou are in {self.location_name} and you found a {self.loot} in the corner"
 
     def reset_enemy(self):
         ##the reset enemy function chooses an enemy from the location's monster table and resets its health, and then sets the enemy as the current enemy for the player
@@ -291,18 +291,18 @@ player_1 = Player(player_name)
 
 while (player_1.last_enemy == None) or (player_1.last_enemy.challenge_rating != 4):
     print(player_1)
-    action = input("\nWhat would you like to do? (1: attack, 2: change location, 3: use item, 4: search, 5: wait) ")
+    action = input("\n  What would you like to do? (1: attack, 2: change location, 3: use item, 4: search, 5: wait) ")
 
     if action == "1":
         ##the attack choice checks to see if there's a current enemy, prints a no enemy statement if there isnt one, and runs the player attack function if there is one
         if player_1.current_enemy == None:
-            print("No enemy to attack here!")
+            print("\nNo enemy to attack here!")
         else:
             player_1.attack(player_1.current_enemy)
 
     elif action == "2":
         ##the change location choice feeds a player input into the player change location function
-        new_location = input("Where do you want to go? (a1, a2, a3, b1, b2, b3, c1, c2, c3, c4) ")
+        new_location = input("\nWhere do you want to go? (a1, a2, a3, b1, b2, b3, c1, c2, c3, c4) ")
         player_1.change_location(new_location)
 
     elif action == "3":
@@ -311,12 +311,12 @@ while (player_1.last_enemy == None) or (player_1.last_enemy.challenge_rating != 
         inventory_keys.sort()
         sorted_inventory = {i: player_1.inventory[i] for i in inventory_keys}
         print(sorted_inventory)
-        used_item = input ("Which item would you like to use from the above list? ")
+        used_item = input ("\nWhich item would you like to use from the above list? ")
         item_to_use = item_mapping.get(used_item)
         if item_to_use:
             item_to_use.use_item(player_1)
         else:
-            print("Item not in inventory")
+            print("\nItem not in inventory")
 
     elif action == "4":
         ##the search choice prints the players current location and then runs the item in the loot variable's gain item function, if there isnt a current item it will print a no item statement
@@ -326,9 +326,9 @@ while (player_1.last_enemy == None) or (player_1.last_enemy.challenge_rating != 
                 player_1.current_location.loot.gain_item(player_1)
                 player_1.current_location.loot = None
             else:
-                print("You didn't find anything in your search")
+                print("\nYou didn't find anything in your search")
         except AttributeError:
-            print("You didn't find anything in your search")
+            print("\nYou didn't find anything in your search")
 
     elif action == "5":
         ##the wait choice runs the current location's reset enemy and reset loot function and also prints a statement about the new enemy
@@ -336,13 +336,13 @@ while (player_1.last_enemy == None) or (player_1.last_enemy.challenge_rating != 
             player_1.current_location.reset_enemy()
             player_1.current_location.reset_loot()
             player_1.current_enemy = player_1.current_location.enemy
-            print(f"You waited and now {player_1.current_enemy}")
+            print(f"\nYou waited and now {player_1.current_enemy}")
         else:
-            print("You waited and nothing happened. Try changing location")
+            print("\nYou waited and nothing happened. Try changing location")
 
     elif action == "exit game":
         break
 
     else:
         ##if the player input doesnt match any of the choices provided it prints a statement saying invalid command
-        print("Invalid command")
+        print("\nInvalid command")
